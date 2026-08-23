@@ -133,13 +133,14 @@ Local and production both run PostgreSQL, so no schema changes are needed.
 | --- | --- |
 | `DATABASE_URL` | the **pooled** connection string (the host containing `-pooler`) |
 | `BETTER_AUTH_SECRET` | a fresh `openssl rand -base64 32`, not the local one |
-| `BETTER_AUTH_URL` | the deployed origin, e.g. `https://your-app.vercel.app` |
-| `NEXT_PUBLIC_APP_URL` | the same deployed origin |
+
+Those two are all that is required. The deployed origin is worked out on its own: the server
+reads Vercel's `VERCEL_PROJECT_PRODUCTION_URL`, and in the browser Better Auth calls its own
+origin. Set `BETTER_AUTH_URL` only if you need to override that.
 
 Neon gives two hosts and they are not interchangeable. Migrations need the direct host; the
 running app needs the pooled one, because serverless instances would otherwise exhaust the
 connection limit. `src/db/index.ts` detects `-pooler` in the URL and turns off prepared
 statements, which PgBouncer's transaction mode cannot support.
 
-`BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` must be the real deployed origin, otherwise session
-cookies and reset links point at localhost. Leave `DEMO_SHOW_RESET_LINK` unset.
+Leave `DEMO_SHOW_RESET_LINK` unset in production.

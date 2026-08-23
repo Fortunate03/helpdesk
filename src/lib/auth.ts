@@ -4,13 +4,14 @@ import { nextCookies } from "better-auth/next-js";
 import { admin as adminPlugin } from "better-auth/plugins/admin";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
+import { APP_URL } from "@/lib/app-url";
 import { ac, roles } from "@/lib/permissions";
 import { rememberResetLink } from "@/lib/reset-links";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg", schema }),
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  baseURL: APP_URL,
 
   emailAndPassword: {
     enabled: true,
