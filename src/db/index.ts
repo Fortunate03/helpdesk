@@ -12,7 +12,18 @@ if (!connectionString) {
 // previous connection pool open. Caching on globalThis keeps a single pool alive.
 const globalForDb = globalThis as unknown as { pool?: ReturnType<typeof postgres> };
 
-const pool = globalForDb.pool ?? postgres(connectionString, { max: 10 });
+// Neon hands out two hosts. The pooled one (…-pooler…) runs PgBouncer in transaction
+// mode, which cannot keep prepared statements alive across a connection, so postgres.js
+// has to stop preparing. It is also the host to use on serverless, where many short
+// lived instances would otherwise exhaust the database's connection limit.
+const isPooled = connectionString.includes("-pooler.");
+
+const pool =
+  globalForDb.pool ??
+  postgres(connectionString, {
+    max: isPooled ? 5 : 10,
+    prepare: !isPooled,
+  });
 
 if (process.env.NODE_ENV !== "production") {
   globalForDb.pool = pool;

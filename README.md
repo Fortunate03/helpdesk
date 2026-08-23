@@ -124,10 +124,22 @@ updates the header, footer, Contact page and Submit sidebar together.
 
 Local and production both run PostgreSQL, so no schema changes are needed.
 
-1. Create a database (for example a free Neon project) and point `DATABASE_URL` at it.
-2. Run `npm run db:migrate` against it.
-3. Import the repository into Vercel and set `DATABASE_URL`, `BETTER_AUTH_SECRET`,
-   `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL`.
+1. Create a database (for example a free Neon project).
+2. Run migrations against the **direct** connection string:
+   `DATABASE_URL="<direct-url>" npx tsx src/db/migrate.ts`, then seed the accounts the same way.
+3. Import the repository into Vercel and set the variables below.
+
+| Variable | Value |
+| --- | --- |
+| `DATABASE_URL` | the **pooled** connection string (the host containing `-pooler`) |
+| `BETTER_AUTH_SECRET` | a fresh `openssl rand -base64 32`, not the local one |
+| `BETTER_AUTH_URL` | the deployed origin, e.g. `https://your-app.vercel.app` |
+| `NEXT_PUBLIC_APP_URL` | the same deployed origin |
+
+Neon gives two hosts and they are not interchangeable. Migrations need the direct host; the
+running app needs the pooled one, because serverless instances would otherwise exhaust the
+connection limit. `src/db/index.ts` detects `-pooler` in the URL and turns off prepared
+statements, which PgBouncer's transaction mode cannot support.
 
 `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL` must be the real deployed origin, otherwise session
-cookies and reset links point at localhost.
+cookies and reset links point at localhost. Leave `DEMO_SHOW_RESET_LINK` unset.
