@@ -74,74 +74,91 @@ export function TicketList({
         ))}
       </ul>
 
+      {/* Every column but Issue is sized to its own content and never wraps. Issue
+          takes the slack (w-full) and is allowed to collapse (max-w-0) so a long
+          description truncates instead of pushing the table into a sideways scroll. */}
       <div className="hidden overflow-hidden rounded-card border border-line bg-surface shadow-card md:block">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-line bg-canvas">
-              <tr className="text-xs tracking-wide text-muted uppercase">
-                <th scope="col" className="px-5 py-3.5 font-medium">Request No.</th>
-                <th scope="col" className="px-5 py-3.5 font-medium">Issue</th>
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-line bg-canvas">
+            <tr className="text-xs tracking-wide text-muted uppercase">
+              <th scope="col" className="px-4 py-3.5 font-medium whitespace-nowrap lg:px-5">
+                Request No.
+              </th>
+              <th scope="col" className="w-full px-4 py-3.5 font-medium lg:px-5">Issue</th>
+              {showRequester ? (
+                <th scope="col" className="px-4 py-3.5 font-medium whitespace-nowrap lg:px-5">
+                  Requester
+                </th>
+              ) : null}
+              {showAssignee ? (
+                <th scope="col" className="px-4 py-3.5 font-medium whitespace-nowrap lg:px-5">
+                  Assigned to
+                </th>
+              ) : null}
+              <th scope="col" className="px-4 py-3.5 font-medium whitespace-nowrap lg:px-5">
+                Priority
+              </th>
+              <th scope="col" className="px-4 py-3.5 font-medium whitespace-nowrap lg:px-5">
+                Status
+              </th>
+              <th scope="col" className="px-4 py-3.5 font-medium whitespace-nowrap lg:px-5">
+                Submitted
+              </th>
+              <th scope="col" className="px-4 py-3.5 lg:px-5">
+                <span className="sr-only">View</span>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-line">
+            {tickets.map((ticket) => (
+              <tr key={ticket.reference} className="transition-colors hover:bg-canvas">
+                <td className="px-4 py-4 align-top whitespace-nowrap lg:px-5">
+                  <Link
+                    href={`${hrefBase}/${ticket.reference}`}
+                    className="font-mono text-xs font-semibold text-ink-strong hover:text-brand-700"
+                  >
+                    {ticket.reference}
+                  </Link>
+                </td>
+                <td className="w-full max-w-0 px-4 py-4 align-top lg:px-5">
+                  <p className="truncate font-medium text-ink">
+                    {CATEGORY_LABELS[ticket.category]}
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-muted">{ticket.description}</p>
+                </td>
                 {showRequester ? (
-                  <th scope="col" className="px-5 py-3.5 font-medium">Requester</th>
+                  <td className="max-w-32 truncate px-4 py-4 align-top text-muted lg:px-5">
+                    {ticket.requesterName ?? "-"}
+                  </td>
                 ) : null}
                 {showAssignee ? (
-                  <th scope="col" className="px-5 py-3.5 font-medium">Assigned to</th>
+                  <td className="max-w-32 truncate px-4 py-4 align-top text-muted lg:px-5">
+                    {ticket.assigneeName ?? <span className="text-muted/70">Unassigned</span>}
+                  </td>
                 ) : null}
-                <th scope="col" className="px-5 py-3.5 font-medium">Priority</th>
-                <th scope="col" className="px-5 py-3.5 font-medium">Status</th>
-                <th scope="col" className="px-5 py-3.5 font-medium">Submitted</th>
-                <th scope="col" className="px-5 py-3.5">
-                  <span className="sr-only">View</span>
-                </th>
+                <td className="px-4 py-4 align-top lg:px-5">
+                  <PriorityBadge priority={ticket.priority} />
+                </td>
+                <td className="px-4 py-4 align-top lg:px-5">
+                  <StatusBadge status={ticket.status} />
+                </td>
+                <td className="px-4 py-4 align-top whitespace-nowrap text-muted lg:px-5">
+                  {formatDate(ticket.createdAt)}
+                </td>
+                <td className="px-4 py-4 text-right align-top lg:px-5">
+                  <Link
+                    href={`${hrefBase}/${ticket.reference}`}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:underline"
+                  >
+                    View
+                    <ArrowUpRight className="size-3.5" aria-hidden="true" />
+                  </Link>
+                </td>
               </tr>
-            </thead>
-
-            <tbody className="divide-y divide-line">
-              {tickets.map((ticket) => (
-                <tr key={ticket.reference} className="transition-colors hover:bg-canvas">
-                  <td className="px-5 py-4 align-top">
-                    <Link
-                      href={`${hrefBase}/${ticket.reference}`}
-                      className="font-mono font-semibold text-ink-strong hover:text-brand-700"
-                    >
-                      {ticket.reference}
-                    </Link>
-                  </td>
-                  <td className="max-w-xs px-5 py-4 align-top">
-                    <p className="font-medium text-ink">{CATEGORY_LABELS[ticket.category]}</p>
-                    <p className="mt-0.5 line-clamp-1 text-xs text-muted">{ticket.description}</p>
-                  </td>
-                  {showRequester ? (
-                    <td className="px-5 py-4 align-top text-muted">{ticket.requesterName ?? "-"}</td>
-                  ) : null}
-                  {showAssignee ? (
-                    <td className="px-5 py-4 align-top text-muted">
-                      {ticket.assigneeName ?? <span className="text-muted/70">Unassigned</span>}
-                    </td>
-                  ) : null}
-                  <td className="px-5 py-4 align-top">
-                    <PriorityBadge priority={ticket.priority} />
-                  </td>
-                  <td className="px-5 py-4 align-top">
-                    <StatusBadge status={ticket.status} />
-                  </td>
-                  <td className="px-5 py-4 align-top whitespace-nowrap text-muted">
-                    {formatDate(ticket.createdAt)}
-                  </td>
-                  <td className="px-5 py-4 text-right align-top">
-                    <Link
-                      href={`${hrefBase}/${ticket.reference}`}
-                      className="inline-flex items-center gap-1 text-xs font-medium text-brand-700 hover:underline"
-                    >
-                      View
-                      <ArrowUpRight className="size-3.5" aria-hidden="true" />
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </>
   );
