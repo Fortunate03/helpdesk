@@ -2,16 +2,17 @@ import { z } from "zod";
 import { categoryEnum, departmentEnum, ticketStatusEnum } from "@/db/schema";
 import { REFERENCE_LENGTH, isValidReference, normalizeReference } from "@/lib/reference";
 
-const CONTAINS_NUMBER = /\p{N}/u;
+// Letters and combining marks so accented names pass, plus the punctuation that
+// genuinely appears in names. Anything else — digits, @, / — is junk input.
+const NAME_PATTERN = /^[\p{L}\p{M}][\p{L}\p{M} '\u2019.-]*$/u;
 
-/** A person's name is not an identifier, so a digit in one is a typo or junk input. */
 function personName(tooShortMessage: string) {
   return z
     .string()
     .trim()
     .min(2, tooShortMessage)
     .max(120, "Name must be 120 characters or fewer.")
-    .refine((value) => !CONTAINS_NUMBER.test(value), "Names cannot contain numbers.");
+    .regex(NAME_PATTERN, "Names can only contain letters, spaces, hyphens and apostrophes.");
 }
 
 /**
@@ -56,6 +57,25 @@ export const loginSchema = z.object({
   email: z.email("Enter a valid email address."),
   password: z.string().min(1, "Enter your password."),
 });
+
+export const updateProfileSchema = z.object({
+  name: personName("Please enter your full name."),
+});
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password."),
+    newPassword: z.string().min(8, "Use at least 8 characters."),
+    confirmPassword: z.string(),
+  })
+  .refine((values) => values.newPassword === values.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  })
+  .refine((values) => values.newPassword !== values.currentPassword, {
+    message: "Choose a password you are not already using.",
+    path: ["newPassword"],
+  });
 
 export const commentSchema = z.object({
   ticketId: z.uuid(),
