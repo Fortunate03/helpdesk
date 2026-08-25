@@ -9,7 +9,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * considered. Every protected page and server action re-checks the real session with
  * requireUser/requireRole, which is what actually decides access.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (getSessionCookie(request)) {
     return NextResponse.next();
   }
@@ -21,5 +21,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/my-requests/:path*", "/tech/:path*", "/admin/:path*"],
+  matcher: ["/my-requests/:path*", "/profile/:path*", "/tech/:path*", "/admin/:path*"],
 };
