@@ -106,7 +106,7 @@ export default async function TechQueuePage({
                 />
               ) : (
                 <>
-                  <TicketList tickets={visible} hrefBase="/my-requests" showRequester />
+                  <TicketList tickets={visible} hrefBase="/tech/tickets" showRequester />
                   <Pagination
                     basePath="/tech"
                     page={currentPage}
@@ -141,7 +141,7 @@ export default async function TechQueuePage({
                 description: row.description,
                 requesterName: row.fullName,
               }))}
-              hrefBase="/my-requests"
+              hrefBase="/tech/tickets"
               showRequester
             />
           </section>

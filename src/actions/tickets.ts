@@ -33,6 +33,7 @@ function revalidateTicket(reference: string) {
   revalidatePath("/admin");
   revalidatePath(`/admin/tickets/${reference}`);
   revalidatePath("/tech");
+  revalidatePath(`/tech/tickets/${reference}`);
   revalidatePath("/track");
 }
 
