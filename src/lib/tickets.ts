@@ -34,17 +34,13 @@ export const PAGE_SIZE = 10;
 export async function listTickets({
   scope,
   status,
-  unassignedOnly = false,
   page,
 }: {
   scope?: SQL;
   status?: TicketStatus;
-  unassignedOnly?: boolean;
   page: number;
 }) {
-  const base = [scope, unassignedOnly ? isNull(tickets.assignedToId) : undefined].filter(
-    (condition): condition is SQL => Boolean(condition),
-  );
+  const base = [scope].filter((condition): condition is SQL => Boolean(condition));
 
   const countWhere = base.length > 0 ? and(...base) : undefined;
   const where = status ? and(...base, eq(tickets.status, status)) : countWhere;

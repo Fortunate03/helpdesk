@@ -1,6 +1,5 @@
-import { Inbox, UserX } from "lucide-react";
+import { Inbox } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatusFilter } from "@/components/tickets/status-filter";
 import { TicketList, type TicketRow } from "@/components/tickets/ticket-list";
@@ -19,20 +18,19 @@ export const metadata: Metadata = {
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; unassigned?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; page?: string }>;
 }) {
   await requireRole(["admin"]);
-  const { status, unassigned, page } = await searchParams;
+  const { status, page } = await searchParams;
 
   const activeStatus = ticketStatusEnum.enumValues.includes(status as TicketStatus)
     ? (status as TicketStatus)
     : undefined;
 
-  const onlyUnassigned = unassigned === "1";
   const currentPage = parsePage(page);
 
   const [{ rows, counts, total, totalPages }, unassignedCount] = await Promise.all([
-    listTickets({ status: activeStatus, unassignedOnly: onlyUnassigned, page: currentPage }),
+    listTickets({ status: activeStatus, page: currentPage }),
     countUnassigned(),
   ]);
 
@@ -49,7 +47,6 @@ export default async function AdminPage({
 
   const params: Record<string, string> = {};
   if (activeStatus) params.status = activeStatus;
-  if (onlyUnassigned) params.unassigned = "1";
 
   return (
     <>
@@ -75,32 +72,13 @@ export default async function AdminPage({
           />
         ) : (
           <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <StatusFilter
-                basePath="/admin"
-                active={activeStatus}
-                counts={counts}
-                params={onlyUnassigned ? { unassigned: "1" } : {}}
-              />
-
-              <Link
-                href={onlyUnassigned ? "/admin" : "/admin?unassigned=1"}
-                className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors ${
-                  onlyUnassigned
-                    ? "border-brand-600 bg-brand-600 text-white"
-                    : "border-line-strong bg-surface text-muted hover:border-brand-300 hover:text-ink"
-                }`}
-              >
-                <UserX className="size-4" aria-hidden="true" />
-                Unassigned only
-              </Link>
-            </div>
+            <StatusFilter basePath="/admin" active={activeStatus} counts={counts} />
 
             {visible.length === 0 ? (
               <EmptyState
                 icon={Inbox}
                 title="Nothing to show"
-                description="No requests match this view. Try clearing the status filter or the unassigned-only toggle."
+                description="No requests match this view. Try clearing the status filter."
               />
             ) : (
               <>
