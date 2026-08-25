@@ -6,6 +6,7 @@ import { SHOW_RESET_LINK, takeResetLink } from "@/lib/reset-links";
 
 export type ResetRequestState = {
   sent?: boolean;
+  demoMode?: boolean;
   demoLink?: string;
   error?: string;
 };
@@ -30,5 +31,9 @@ export async function requestPasswordReset(
     // address has an account.
   }
 
-  return { sent: true, demoLink: SHOW_RESET_LINK ? takeResetLink(email) : undefined };
+  return {
+    sent: true,
+    demoMode: SHOW_RESET_LINK,
+    demoLink: SHOW_RESET_LINK ? takeResetLink(email) : undefined,
+  };
 }

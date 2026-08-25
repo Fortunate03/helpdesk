@@ -1,7 +1,6 @@
 "use client";
 
 import { Check, Copy } from "lucide-react";
-import Link from "next/link";
 import { useActionState, useState } from "react";
 import { requestPasswordReset } from "@/actions/auth";
 import { Alert } from "@/components/ui/alert";
@@ -20,10 +19,7 @@ export function ForgotPasswordForm() {
         </Alert>
 
         {state.demoLink ? <DemoLink url={state.demoLink} /> : null}
-
-        <Link href="/login" className="block text-center text-sm font-medium text-brand-700 hover:underline">
-          Back to sign in
-        </Link>
+        {!state.demoLink && state.demoMode ? <DemoMiss /> : null}
       </div>
     );
   }
@@ -46,6 +42,22 @@ export function ForgotPasswordForm() {
         {pending ? "Sending…" : "Send reset link"}
       </Button>
     </form>
+  );
+}
+
+/**
+ * Says why the link is missing. Without this the demo looks broken, because the
+ * message above is deliberately the same whether or not the address has an account.
+ */
+function DemoMiss() {
+  return (
+    <div className="rounded-lg border border-line-strong bg-canvas p-4">
+      <p className="text-sm font-semibold text-ink">Demo mode: no link for that address</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted">
+        Nothing was generated because no account is registered with it. Enter the address of an
+        existing account to see the reset link appear here.
+      </p>
+    </div>
   );
 }
 
