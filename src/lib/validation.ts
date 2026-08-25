@@ -2,17 +2,25 @@ import { z } from "zod";
 import { categoryEnum, departmentEnum, ticketStatusEnum } from "@/db/schema";
 import { REFERENCE_LENGTH, isValidReference, normalizeReference } from "@/lib/reference";
 
+const CONTAINS_NUMBER = /\p{N}/u;
+
+/** A person's name is not an identifier, so a digit in one is a typo or junk input. */
+function personName(tooShortMessage: string) {
+  return z
+    .string()
+    .trim()
+    .min(2, tooShortMessage)
+    .max(120, "Name must be 120 characters or fewer.")
+    .refine((value) => !CONTAINS_NUMBER.test(value), "Names cannot contain numbers.");
+}
+
 /**
  * Shared by the browser form and the server action. The action re-validates on the
  * server because client-side checks are a convenience for the user, not a guarantee.
  * A request can always be sent without ever loading the form.
  */
 export const submitTicketSchema = z.object({
-  fullName: z
-    .string()
-    .trim()
-    .min(2, "Please enter your full name.")
-    .max(120, "Name must be 120 characters or fewer."),
+  fullName: personName("Please enter your full name."),
   email: z.email("Enter a valid email address, for example name@example.ac.za."),
   department: z.enum(departmentEnum.enumValues, { message: "Select your department." }),
   category: z.enum(categoryEnum.enumValues, { message: "Select the type of issue." }),
@@ -34,7 +42,7 @@ export const trackTicketSchema = z.object({
 
 export const registerSchema = z
   .object({
-    name: z.string().trim().min(2, "Please enter your full name.").max(120),
+    name: personName("Please enter your full name."),
     email: z.email("Enter a valid email address."),
     password: z.string().min(8, "Use at least 8 characters."),
     confirmPassword: z.string(),
@@ -80,7 +88,7 @@ export function fieldErrors(error: z.ZodError): Record<string, string> {
 
 /** Admin-only. Public registration cannot reach this, so it always produces a plain user. */
 export const createStaffSchema = z.object({
-  name: z.string().trim().min(2, "Enter the person's full name.").max(120),
+  name: personName("Enter the person's full name."),
   email: z.email("Enter a valid email address."),
   password: z.string().min(8, "Use at least 8 characters."),
   role: z.enum(["technician", "admin"], { message: "Choose a role." }),
