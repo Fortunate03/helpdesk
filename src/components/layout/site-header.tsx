@@ -18,7 +18,7 @@ export async function SiteHeader() {
       <Container className="flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-8">
           <Logo />
-          <DesktopNav />
+          <DesktopNav signedIn={Boolean(user)} />
         </div>
 
         <div className="flex items-center gap-2.5">

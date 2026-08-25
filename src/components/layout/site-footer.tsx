@@ -1,12 +1,15 @@
 import { Clock, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
-import { SITE, PRIMARY_NAV } from "@/lib/constants";
+import { SITE, PRIMARY_NAV, PUBLIC_NAV } from "@/lib/constants";
 import { Logo } from "@/components/layout/logo";
 
 // Home and Contact are left out here: the logo already returns to the home page,
-// and the Contact column alongside carries the same details.
-const FOOTER_NAV = PRIMARY_NAV.filter((item) => item.href !== "/" && item.href !== "/contact");
+// and the Contact column alongside carries the same details. About Us is dropped from
+// the header once you sign in, so this is the route back to it.
+const FOOTER_NAV = [...PRIMARY_NAV, ...PUBLIC_NAV].filter(
+  (item) => item.href !== "/" && item.href !== "/contact",
+);
 
 export function SiteFooter() {
   return (

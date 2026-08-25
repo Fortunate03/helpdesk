@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PRIMARY_NAV } from "@/lib/constants";
+import { navFor } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-export function DesktopNav() {
+export function DesktopNav({ signedIn }: { signedIn: boolean }) {
   const pathname = usePathname();
+  const links = navFor(signedIn);
 
   return (
     <nav aria-label="Main" className="hidden lg:block">
       <ul className="flex items-center gap-1">
-        {PRIMARY_NAV.map((item) => {
+        {links.map((item) => {
           // "/" would otherwise match every route under the startsWith check.
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
 

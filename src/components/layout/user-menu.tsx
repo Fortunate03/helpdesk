@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, LayoutDashboard, ListChecks, LogOut, Ticket } from "lucide-react";
+import { ChevronDown, LayoutDashboard, ListChecks, LogOut, Ticket, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -68,6 +68,7 @@ export function UserMenu({ name, email, role }: { name: string; email: string; r
 
           <div className="p-1.5">
             <MenuLink href="/my-requests" icon={Ticket} label="My Requests" onSelect={() => setOpen(false)} />
+            <MenuLink href="/profile" icon={UserRound} label="My Profile" onSelect={() => setOpen(false)} />
             {role === "technician" ? (
               <MenuLink href="/tech" icon={ListChecks} label="Technician Queue" onSelect={() => setOpen(false)} />
             ) : null}

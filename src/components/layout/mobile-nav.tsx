@@ -1,13 +1,13 @@
 "use client";
 
-import { LayoutDashboard, ListChecks, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, ListChecks, LogOut, Menu, UserRound, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { buttonStyles } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import { PRIMARY_NAV } from "@/lib/constants";
+import { navFor } from "@/lib/constants";
 import type { Role } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 
@@ -81,7 +81,8 @@ export function MobileNav({ user }: Props) {
   }
 
   const links = [
-    ...PRIMARY_NAV,
+    ...navFor(Boolean(user)),
+    ...(user ? [{ href: "/profile", label: "My Profile" }] : []),
     ...(user?.role === "technician" ? [{ href: "/tech", label: "Technician Queue" }] : []),
     ...(user?.role === "admin" ? [{ href: "/admin", label: "Admin Dashboard" }] : []),
   ];
@@ -133,6 +134,7 @@ export function MobileNav({ user }: Props) {
                         active ? "bg-brand-50 text-brand-700" : "text-ink hover:bg-canvas",
                       )}
                     >
+                      {item.href === "/profile" ? <UserRound className="size-4" aria-hidden="true" /> : null}
                       {item.href === "/tech" ? <ListChecks className="size-4" aria-hidden="true" /> : null}
                       {item.href === "/admin" ? (
                         <LayoutDashboard className="size-4" aria-hidden="true" />

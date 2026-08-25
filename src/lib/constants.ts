@@ -66,11 +66,23 @@ export const DEPARTMENT_LABELS: Record<Department, string> = {
   OTHER: "Other",
 };
 
-/** Nav shown to everyone. Role-specific links are appended in the header. */
-export const PRIMARY_NAV = [
+export type NavLink = { href: string; label: string };
+
+/** Shown in every state. Role-specific links are appended in the header. */
+export const PRIMARY_NAV: readonly NavLink[] = [
   { href: "/", label: "Home" },
   { href: "/submit", label: "Submit Request" },
+];
+
+/** Introductory pages, which are what a visitor without an account is looking for. */
+export const PUBLIC_NAV: readonly NavLink[] = [
   { href: "/about", label: "About Us" },
-  { href: "/my-requests", label: "My Requests" },
   { href: "/contact", label: "Contact" },
-] as const;
+];
+
+/** Needs a session, so linking to it while signed out only leads to the login page. */
+export const ACCOUNT_NAV: readonly NavLink[] = [{ href: "/my-requests", label: "My Requests" }];
+
+export function navFor(signedIn: boolean): readonly NavLink[] {
+  return signedIn ? [...PRIMARY_NAV, ...ACCOUNT_NAV] : [...PRIMARY_NAV, ...PUBLIC_NAV];
+}
